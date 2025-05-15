@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spotify Shrinker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <!-- Header with hamburger -->
+  <div class="header">
+    <div>Spotify Shrinker</div>
+    <div class="menu">
+      <div class="menu-icon">&#9776;</div>
+      <div class="menu-content">
+        <a href="/logout">Log out</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main form -->
+  <main>
+    <form id="shrink-form" action="/shrink" method="post">
+      <label for="pid">Choose a playlist:</label>
+      <select name="playlist_id" id="pid">
+        {% for pl in playlists %}
+          <option value="{{ pl.id }}" data-total="{{ pl.total }}">
+            {{ pl.name }} ({{ pl.total }})
+          </option>
+        {% endfor %}
+      </select>
+
+      <!-- Hidden top_n field -->
+      <input type="hidden" name="top_n" id="top-n-hidden" value="0">
+
+      <!-- Shrink button opens modal -->
+      <button type="button" id="open-modal">Shrink ↓</button>
+    </form>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal-backdrop" class="modal-backdrop">
+    <div class="modal" id="modal">
+      <span class="close" id="close-modal">&times;</span>
+      <p id="validation-msg" class="invalid-red">
+        Select top 0/0 songs
+      </p>
+      <div>
+        <input type="number" id="top-n-input" min="1" placeholder="0">
+        <button id="modal-select">Select</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    const backdrop    = document.getElementById('modal-backdrop');
+    const modal       = document.getElementById('modal');
+    const openBtn     = document.getElementById('open-modal');
+    const closeBtn    = document.getElementById('close-modal');
+    const selectEl    = document.getElementById('pid');
+    const hiddenInput = document.getElementById('top-n-hidden');
+    const topInput    = document.getElementById('top-n-input');
+    const msg         = document.getElementById('validation-msg');
+    const chooseBtn   = document.getElementById('modal-select');
+
+    function updateMsg(val, total) {
+      msg.textContent = `Select top ${val}/${total} songs`;
+      if (val <= 0 || val >= total) {
+        msg.className = 'invalid-red';
+      } else if (val/total <= 0.5) {
+        msg.className = 'valid-green';
+      } else if (val/total <= 0.75) {
+        msg.className = 'valid-yellow';
+      } else {
+        msg.className = 'valid-orange';
+      }
+    }
+
+    function showModal() {
+      const total = +selectEl.selectedOptions[0].dataset.total;
+      updateMsg(0, total);
+      topInput.value = '';
+      topInput.max   = total - 1;
+      backdrop.style.display = 'flex';
+      topInput.focus();
+    }
+
+    function closeModal() {
+      backdrop.style.display = 'none';
+    }
+
+    // Open/close
+    openBtn.addEventListener('click', showModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    // Live update as user types
+    topInput.addEventListener('input', () => {
+      const total = +selectEl.selectedOptions[0].dataset.total;
+      updateMsg(+topInput.value, total);
+    });
+
+    // On selecting
+    chooseBtn.addEventListener('click', () => {
+      const total = +selectEl.selectedOptions[0].dataset.total;
+      const val   = +topInput.value;
+      // Invalid?
+      if (val <= 0 || val >= total) {
+        modal.classList.add('shake');
+        setTimeout(() => modal.classList.remove('shake'), 300);
+        return;
+      }
+      // Accept and submit
+      hiddenInput.value = val;
+      document.getElementById('shrink-form').submit();
+    });
+  </script>
+</body>
+</html>

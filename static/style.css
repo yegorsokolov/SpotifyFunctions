@@ -1,0 +1,167 @@
+/* ---------- Global & Reset ---------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+body {
+  background: #f4f4f4;
+  color: #333;
+  min-height: 100vh;
+}
+
+/* ---------- Header ---------- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1DB954;
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* ---------- Hamburger Menu ---------- */
+.menu {
+  position: relative;
+}
+.menu-icon {
+  font-size: 1.75rem;
+  cursor: pointer;
+}
+.menu-content {
+  display: none;
+  position: absolute;
+  top: 2.5rem;
+  right: 0;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.menu:hover .menu-content {
+  display: block;
+}
+.menu-content a {
+  display: block;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  color: #333;
+  transition: background 0.2s;
+}
+.menu-content a:hover {
+  background: #f0f0f0;
+}
+
+/* ---------- Form ---------- */
+main {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+form {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 500px;
+}
+form label {
+  font-size: 1.1rem;
+}
+select {
+  width: 100%;
+  margin: 0.5rem 0 1.5rem;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+button {
+  background: #1DB954;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover {
+  background: #17a44c;
+}
+
+/* ---------- Modal Backdrop & Box ---------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal {
+  background: white;
+  width: 320px;
+  padding: 1.5rem 2rem;
+  border-radius: 8px;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+.modal .close {
+  position: absolute;
+  top: 12px; right: 16px;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: #666;
+  transition: color 0.2s;
+}
+.modal .close:hover {
+  color: #333;
+}
+
+/* ---------- Modal Content ---------- */
+#validation-msg {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+.modal input[type="number"] {
+  width: 80px;
+  padding: 0.4rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+  margin-right: 0.5rem;
+}
+.modal button {
+  background: #1DB954;
+  color: white;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+}
+.modal button:hover {
+  background: #17a44c;
+}
+
+/* ---------- Validation Colors ---------- */
+.valid-green   { color: green;    }
+.valid-yellow  { color: #b08900; } /* dark yellow */
+.valid-orange  { color: orange;   }
+.invalid-red   { color: red;      }
+
+/* ---------- Shake Animation ---------- */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-8px); }
+  40%,80% { transform: translateX(8px); }
+}
+.shake {
+  animation: shake 0.3s ease-in-out;
+}
