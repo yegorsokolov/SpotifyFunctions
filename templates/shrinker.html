@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shrinker</title>
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="header">
+    <a href="{{ url_for('dashboard') }}" class="back-btn">&#8592;</a>
+    <h1 class="header-title">Spotify Playlist Shrinker</h1>
+    <div class="menu">
+      <div class="menu-icon">&#9776;</div>
+      <div class="menu-content">
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="/logout">Log out</a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <form id="shrink-form" action="{{ url_for('shrinker.do_shrink') }}" method="post">
+      <label for="pid">Playlist:</label>
+      <select id="pid" name="playlist_id">
+        {% for p in playlists %}
+          <option value="{{ p.id }}" data-total="{{ p.total }}">
+            {{ p.name }} ({{ p.total }})
+          </option>
+        {% endfor %}
+      </select>
+      <input type="hidden" name="top_n" id="top-n-hidden" value="0">
+      <button type="button" id="open-modal">Shrink ↓</button>
+    </form>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal-backdrop" class="modal-backdrop">
+    <div class="modal" id="modal">
+      <span class="close" id="close-modal">&times;</span>
+      <p id="validation-msg" class="invalid-red">Select top 0/0</p>
+      <div>
+        <input type="number" id="top-n-input" placeholder="0">
+        <button id="modal-select">Select</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+    const selectEl    = document.getElementById('pid');
+    const topInput    = document.getElementById('top-n-input');
+    const msg         = document.getElementById('validation-msg');
+    const openBtn     = document.getElementById('open-modal');
+    const closeBtn    = document.getElementById('close-modal');
+    const chooseBtn   = document.getElementById('modal-select');
+
+    function updateMsg(val, total) {
+      msg.textContent = `Select top ${val}/${total}`;
+      if (val <= 0 || val >= total)          msg.className = 'invalid-red';
+      else if (val/total <= 0.5)             msg.className = 'valid-green';
+      else if (val/total <= 0.75)            msg.className = 'valid-yellow';
+      else                                   msg.className = 'valid-orange';
+    }
+
+    function showModal() {
+      const total = +selectEl.selectedOptions[0].dataset.total;
+      updateMsg(0, total);
+      topInput.value = '';
+      topInput.max   = total - 1;
+      document.getElementById('modal-backdrop').style.display = 'flex';
+      topInput.focus();
+    }
+    function closeModal() {
+      document.getElementById('modal-backdrop').style.display = 'none';
+    }
+
+    openBtn.addEventListener('click', showModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    topInput.addEventListener('input', () => {
+      const total = +selectEl.selectedOptions[0].dataset.total;
+      updateMsg(+topInput.value, total);
+    });
+
+    chooseBtn.addEventListener('click', async () => {
+      const total = +selectEl.selectedOptions[0].dataset.total;
+      const val   = +topInput.value;
+      if (val <= 0 || val >= total) {
+        document.getElementById('modal').classList.add('shake');
+        setTimeout(() => document.getElementById('modal').classList.remove('shake'), 300);
+        return;
+      }
+
+      // 1) Call the API
+      const res = await fetch('/shrinker/shrink', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playlist_id: selectEl.value,
+          top_n: val
+        })
+      });
+      const { new_id } = await res.json();
+
+      // 2) Open Spotify in a new tab
+      window.open(`https://open.spotify.com/playlist/${new_id}`, '_blank');
+
+      // 3) Stay on this control page
+      window.location = '/shrinker/control';
+    });
+  </script>
+</body>
+</html>

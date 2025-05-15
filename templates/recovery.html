@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recovery</title>
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="header">
+    <a href="{{ url_for('dashboard') }}" class="back-btn">←</a>
+    <h1 class="header-title">Playlist Recovery Tool</h1>
+    <div class="menu">
+      <div class="menu-icon">&#9776;</div>
+      <div class="menu-content">
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="/logout">Log out</a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <form id="recovery-form" action="{{ url_for('recovery.do_restore') }}" method="post">
+      <label for="pid">Deleted Playlist:</label>
+      <select id="pid" name="playlist_id">
+        {% for p in playlists %}
+          <option value="{{ p.id }}">{{ p.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="button" id="open-modal">Restore ↺</button>
+    </form>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal-backdrop" class="modal-backdrop">
+    <div class="modal" id="modal">
+      <span class="close" id="close-modal">&times;</span>
+      <p id="validation-msg" class="valid-green">
+        Restore “<span id="chosen-name"></span>”?
+      </p>
+      <button id="modal-select">Confirm</button>
+    </div>
+  </div>
+
+  <script>
+    const selectEl  = document.getElementById('pid');
+    const openBtn   = document.getElementById('open-modal');
+    const closeBtn  = document.getElementById('close-modal');
+    const chooseBtn = document.getElementById('modal-select');
+    const nameSpan  = document.getElementById('chosen-name');
+
+    function showModal() {
+      if (!selectEl.value) {
+        document.getElementById('modal').classList.add('shake');
+        setTimeout(() => document.getElementById('modal').classList.remove('shake'), 300);
+        return;
+      }
+      nameSpan.textContent = selectEl.selectedOptions[0].text;
+      document.getElementById('modal-backdrop').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('modal-backdrop').style.display = 'none';
+    }
+
+    openBtn.addEventListener('click', showModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    chooseBtn.addEventListener('click', async () => {
+      // 1) Call the recovery API
+      const res = await fetch('/recovery/restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playlist_id: selectEl.value })
+      });
+      const { new_id } = await res.json();
+
+      // 2) Open Spotify in a new tab
+      window.open(`https://open.spotify.com/playlist/${new_id}`, '_blank');
+
+      // 3) Stay on this control page
+      window.location = '/recovery/control';
+    });
+  </script>
+</body>
+</html>
