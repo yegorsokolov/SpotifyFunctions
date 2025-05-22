@@ -35,28 +35,24 @@ body {
 }
 
 /* --------------------------------------------- */
-/* Header: back-arrow ● title ● hamburger */
+/* Header: single HTML arrow only, no pseudo */
 .header {
   position: relative;
   display: flex;
-  justify-content: center;   /* center the title */
-  align-items: center;       /* vertically center everything */
+  justify-content: center;
+  align-items: center;
   background: #1DB954;
-  color: #fff;                /* ensure title is white */
+  color: #fff;
   padding: 1rem 2rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
-
-/* Title in the exact center */
 .header-title {
-  margin: 0;
   font-size: 1.5rem;
   font-weight: normal;
-  color: inherit;            /* white from .header */
 }
 
 /* Back arrow in top-left */
-.back-btn {
+.header .back-btn {
   position: absolute;
   top: 50%;
   left: 1rem;
@@ -65,16 +61,18 @@ body {
   border: none;
   color: white;
   font-size: 1.5rem;
-  text-decoration: none;
-  padding: 0;
   line-height: 1;
   cursor: pointer;
-}
-.back-btn:hover {
-  color: #eee;
+  text-decoration: none !important;
 }
 
-/* Hamburger in top-right */
+/* make sure no ::before/after adds text */
+.header .back-btn::before,
+.header .back-btn::after {
+  content: none !important;
+}
+
+/* Hamburger menu */
 .menu {
   position: absolute;
   top: 50%;
@@ -121,23 +119,23 @@ body {
   gap: 1rem;
 }
 .dash-btn {
-  flex: 1;
   background: #1DB954;
   color: #fff;
   text-decoration: none;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 1rem;
+  justify-content: center;
+  height: 4rem;
   border-radius: 6px;
   transition: background .2s;
+  text-align: center;
 }
 .dash-btn:hover {
   background: #17a44c;
 }
 
 /* --------------------------------------------- */
-/* Forms & buttons */
+/* Forms & generic buttons */
 main form {
   background: #fff;
   margin: 2rem auto;
@@ -150,7 +148,8 @@ main form {
 label {
   font-size: 1.1rem;
 }
-select {
+select,
+input[type="number"] {
   width: 100%;
   margin: 0.5rem 0 1.5rem;
   padding: 0.5rem;
@@ -212,10 +211,10 @@ button:hover {
   font-size: 1.1rem;
   font-weight: bold;
 }
-.invalid-red   { color: red;    }
-.valid-green   { color: green;  }
-.valid-yellow  { color: #b08900;}
-.valid-orange  { color: orange; }
+.invalid-red  { color: red;    }
+.valid-green  { color: green;  }
+.valid-yellow { color: #b08900;}
+.valid-orange { color: orange; }
 @keyframes shake {
   0%,100% { transform: translateX(0); }
   20%,60% { transform: translateX(-8px); }
@@ -223,4 +222,67 @@ button:hover {
 }
 .shake {
   animation: shake 0.3s ease-in-out;
+}
+
+/* --------------------------------------------- */
+/* Track list styling */
+.track-list {
+  margin: 1rem auto;
+  max-width: 500px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.track-item {
+  background: #fff;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  cursor: grab;
+}
+
+/* --------------------------------------------- */
+/* Save Order button & DVD bounce in side‐zones */
+:root {
+  --form-half: 250px;
+  --center-left: calc(50vw - var(--form-half));
+  --center-right: calc(50vw + var(--form-half));
+  --btn-w: 8rem;
+}
+
+@keyframes dvdBounce {
+  0%   { left: 1rem; }
+  20%  { left: calc(var(--center-left) - var(--btn-w) - 1rem); }
+  21%  { left: calc(var(--center-right) + 1rem); }
+  40%  { left: calc(100vw - 1rem - var(--btn-w)); }
+  41%  { left: 1rem; }
+  60%  { left: calc(var(--center-left) - var(--btn-w) - 1rem); }
+  61%  { left: calc(var(--center-right) + 1rem); }
+  80%  { left: calc(100vw - 1rem - var(--btn-w)); }
+ 100%  { left: 1rem; }
+}
+
+#save-order {
+  position: fixed;
+  bottom: 1rem;
+  width: var(--btn-w);
+  z-index: 1000;
+  animation: dvdBounce 12s linear infinite;
+}
+
+/* cleanup list: no bullets, no left indent */
+.cleanup-list {
+  list-style: none;      /* no bullets */
+  padding-left: 0;       /* remove UA indent */
+  margin: 2rem auto;
+  max-width: 500px;
+}
+
+/* keep each item’s styling */
+.cleanup-list li {
+  list-style: none;      /* extra safety */
+  margin-bottom: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }

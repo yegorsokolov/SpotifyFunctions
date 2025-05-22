@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Delete Archive Forever</title>
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="header">
+    <a href="{{ url_for('dashboard') }}" class="back-btn">←</a>
+    <h1 class="header-title">Manage Deleted Playlists</h1>
+    <div class="menu">
+      <div class="menu-icon">&#9776;</div>
+      <div class="menu-content">
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="/logout">Log out</a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <!-- 1) Added action + method -->
+    <form id="cleanup-form"
+          action="{{ url_for('cleanup.do_delete') }}"
+          method="post">
+      <ul class="cleanup-list">
+        {% for p in playlists %}
+        <li>
+          <label>
+            <!-- 2) Name must match what cleanup.py reads -->
+            <input type="checkbox"
+                   name="playlist_ids"
+                   class="cleanup-checkbox"
+                   value="{{ p.id }}">
+            {{ p.name }}
+          </label>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <button type="button"
+              id="delete-btn"
+              class="wide-btn"
+              style="display:none;">
+        Delete Forever
+      </button>
+    </form>
+  </main>
+
+  <!-- Confirm modal -->
+  <div id="confirm-backdrop" class="modal-backdrop">
+    <div class="modal">
+      <span class="close" id="confirm-close">&times;</span>
+      <p>Are you sure?</p>
+      <div class="modal-buttons">
+        <button id="cancel-delete" class="grey-btn">Cancel</button>
+        <button id="confirm-delete" class="wide-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form       = document.getElementById('cleanup-form');
+    const checkboxes = document.querySelectorAll('.cleanup-checkbox');
+    const deleteBtn  = document.getElementById('delete-btn');
+    const backdrop   = document.getElementById('confirm-backdrop');
+    const closeX     = document.getElementById('confirm-close');
+    const cancelBtn  = document.getElementById('cancel-delete');
+    const confirmBtn = document.getElementById('confirm-delete');
+
+    // Show “Delete Forever” only if any box is checked
+    checkboxes.forEach(cb =>
+      cb.addEventListener('change', () => {
+        const any = Array.from(checkboxes).some(c => c.checked);
+        deleteBtn.style.display = any ? 'block' : 'none';
+      })
+    );
+
+    // Open / close modal
+    deleteBtn .addEventListener('click', () => backdrop.style.display = 'flex');
+    closeX    .addEventListener('click', () => backdrop.style.display = 'none');
+    cancelBtn .addEventListener('click', () => backdrop.style.display = 'none');
+
+    // On confirm, just submit the form
+    confirmBtn.addEventListener('click', () => form.submit());
+  </script>
+</body>
+</html>

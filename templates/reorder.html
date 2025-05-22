@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reorder Playlist</title>
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+<body>
+  <div class="header">
+    <a href="{{ url_for('dashboard') }}" class="back-btn">←</a>
+    <h1 class="header-title">Reorder Playlist</h1>
+    <div class="menu">
+      <div class="menu-icon">&#9776;</div>
+      <div class="menu-content">
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="/logout">Log out</a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <form id="pick-playlist" action="#" method="post">
+      <label for="pid">Playlist:</label>
+      <select id="pid" name="playlist_id">
+        <option value="">-- select one --</option>
+        {% for p in playlists %}
+          <option value="{{ p.id }}">{{ p.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="button" id="load-btn">Load Tracks</button>
+    </form>
+
+    <div id="tracks-container" style="display:none; margin-top:1rem;">
+      <ul id="track-list" class="track-list">
+        <!-- items will be injected here -->
+      </ul>
+      <button id="save-order" type="button" class="wide-btn">
+        Save Order
+      </button>
+    </div>
+  </main>
+
+  <script>
+    const loadBtn = document.getElementById('load-btn'),
+          pidEl   = document.getElementById('pid'),
+          cont    = document.getElementById('tracks-container'),
+          list    = document.getElementById('track-list'),
+          saveBtn = document.getElementById('save-order');
+    let sortable;
+
+    loadBtn.addEventListener('click', async () => {
+      const pid = pidEl.value;
+      if (!pid) return alert("Please select a playlist first.");
+
+      const res = await fetch('/reorder/fetch_tracks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playlist_id: pid })
+      });
+      if (!res.ok) {
+        return alert("Failed to load tracks.");
+      }
+      const tracks = await res.json();
+      list.innerHTML = tracks
+        .map(t => `<li data-id="${t.id}" class="track-item">${t.name}</li>`)
+        .join('');
+      cont.style.display = 'block';
+
+      if (sortable) sortable.destroy();
+      sortable = Sortable.create(list, {
+        animation: 150,
+        ghostClass: 'drag-ghost'
+      });
+    });
+
+    saveBtn.addEventListener('click', async () => {
+      const pid   = pidEl.value;
+      const order = Array.from(list.children).map(li => li.dataset.id);
+      const res = await fetch('/reorder/save', {
+        method: 'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ playlist_id: pid, order })
+      });
+      if (res.ok) {
+        alert("Order saved!");
+      } else {
+        alert("Failed to save.");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -8,13 +8,15 @@
 </head>
 <body>
   <div class="header">
-    <div>Spotify Services</div>
+    <h1 class="header-title">Spotify Services</h1>
     <div class="menu">
       <div class="menu-icon">&#9776;</div>
       <div class="menu-content">
         <a href="{{ url_for('shrinker.control') }}">Spotify Shrinker</a>
         <a href="{{ url_for('recovery.control') }}">Playlist Recovery</a>
-        <a href="/logout">Log out</a>
+        <a href="{{ url_for('cleanup.control') }}">Delete Archive Forever</a>
+        <a href="{{ url_for('reorder.control') }}">Reorder Playlist</a>
+        <a href="{{ url_for('logout') }}">Log out</a>
       </div>
     </div>
   </div>
@@ -24,10 +26,16 @@
       <a href="{{ url_for('shrinker.control') }}" class="dash-btn">
         Spotify Shrinker
       </a>
+      <a href="{{ url_for('cleanup.control') }}" class="dash-btn">
+        Delete Archive Forever
+      </a>
     </div>
     <div class="column">
       <a href="{{ url_for('recovery.control') }}" class="dash-btn">
         Playlist Recovery Tool
+      </a>
+      <a href="{{ url_for('reorder.control') }}" class="dash-btn">
+        Reorder Playlist
       </a>
     </div>
   </main>
